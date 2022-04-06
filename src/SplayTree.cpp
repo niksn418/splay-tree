@@ -1,7 +1,5 @@
 #include "SplayTree.h"
 
-#include <vector>
-
 struct SplayTree::Node
 {
     Node * left = nullptr;
@@ -10,15 +8,15 @@ struct SplayTree::Node
 
     Node() = default;
 
-    Node(int _value)
-        : value(_value)
+    Node(int value)
+        : value(value)
     {
     }
 
-    void set_children(Node * _left, Node * _right)
+    void set_children(Node * left, Node * right)
     {
-        left = _left;
-        right = _right;
+        this->left = left;
+        this->right = right;
     }
 
     Node * rotate_left()
@@ -40,11 +38,12 @@ struct SplayTree::Node
 
 void SplayTree::splay(Node *& v, int value) const
 {
-    if (v == nullptr)
+    if (v == nullptr) {
         return;
-    Node *left_tree, *right_tree;
+    }
     static Node dummy;
-    left_tree = right_tree = &dummy;
+    Node * left_tree = &dummy;
+    Node * right_tree = &dummy;
     while (v->value != value) {
         if (value < v->value) {
             if (v->left != nullptr && value < v->left->value) {
@@ -86,8 +85,8 @@ void SplayTree::get_values(const Node * v, std::vector<int> & values) const
 
 bool SplayTree::contains(int value) const
 {
-    splay(root, value);
-    return root != nullptr && root->value == value;
+    splay(m_root, value);
+    return m_root != nullptr && m_root->value == value;
 }
 
 bool SplayTree::insert(int value)
@@ -95,21 +94,21 @@ bool SplayTree::insert(int value)
     if (contains(value)) {
         return false;
     }
-    if (root == nullptr) {
-        root = new Node(value);
+    if (m_root == nullptr) {
+        m_root = new Node(value);
         m_size = 1;
         return true;
     }
     Node * new_root = new Node(value);
-    if (value < root->value) {
-        new_root->set_children(root->left, root);
-        root->left = nullptr;
+    if (value < m_root->value) {
+        new_root->set_children(m_root->left, m_root);
+        m_root->left = nullptr;
     }
     else {
-        new_root->set_children(root, root->right);
-        root->right = nullptr;
+        new_root->set_children(m_root, m_root->right);
+        m_root->right = nullptr;
     }
-    root = new_root;
+    m_root = new_root;
     ++m_size;
     return true;
 }
@@ -120,20 +119,20 @@ bool SplayTree::remove(int value)
         return false;
     }
     Node * new_root;
-    if (root->left == nullptr) {
-        new_root = root->right;
+    if (m_root->left == nullptr) {
+        new_root = m_root->right;
     }
-    else if (root->right == nullptr) {
-        new_root = root->left;
+    else if (m_root->right == nullptr) {
+        new_root = m_root->left;
     }
     else {
-        new_root = root->left;
+        new_root = m_root->left;
         splay(new_root, value);
-        new_root->right = root->right;
+        new_root->right = m_root->right;
     }
     --m_size;
-    delete root;
-    root = new_root;
+    delete m_root;
+    m_root = new_root;
     return true;
 }
 
@@ -150,13 +149,13 @@ bool SplayTree::empty() const
 std::vector<int> SplayTree::values() const
 {
     std::vector<int> values;
-    get_values(root, values);
+    get_values(m_root, values);
     return values;
 }
 
 SplayTree::~SplayTree()
 {
     while (m_size) {
-        remove(root->value);
+        remove(m_root->value);
     }
 }
