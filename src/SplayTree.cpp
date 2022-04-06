@@ -149,13 +149,21 @@ bool SplayTree::empty() const
 std::vector<int> SplayTree::values() const
 {
     std::vector<int> values;
+    values.reserve(m_size);
     get_values(m_root, values);
     return values;
 }
 
 SplayTree::~SplayTree()
 {
-    while (m_size) {
-        remove(m_root->value);
+    while (m_root != nullptr) {
+        if (m_root->left != nullptr) {
+            m_root = m_root->rotate_right();
+        }
+        else {
+            Node * old_root = m_root;
+            m_root = m_root->right;
+            delete old_root;
+        }
     }
 }
